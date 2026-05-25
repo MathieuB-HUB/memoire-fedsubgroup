@@ -1,0 +1,8 @@
+dataset: fed_heart
+n_clients: 4
+model: mlp
+hidden_dims: [64, 32]
+batch_size: 32
+local_epochs: 2
+n_rounds: 50
+lr: 0.001

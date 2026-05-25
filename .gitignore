@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.pytest_cache/
+
+# datasets (trop lourds)
+data/
+*.hea
+*.dat
+*.csv.gz
+
+# Résultats et figures versionnés pour reproductibilité de soutenance.
+# (gardés volontairement malgré l'usage habituel)
+
+# editeur
+.vscode/
+.idea/
+*.swp
+.DS_Store

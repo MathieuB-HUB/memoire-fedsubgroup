@@ -1,0 +1,22 @@
+{
+  "config_file": "configs/fed_heart.yaml",
+  "dataset": "fed_heart",
+  "method": "ditto",
+  "seed": 7,
+  "sensitive": "age",
+  "duration_s": 20.811845302581787,
+  "auc_global": 0.8032374941561478,
+  "auc_per_group": {
+    "0": 0.8396107972379159,
+    "1": 0.7303167420814479
+  },
+  "worst_group_auc": 0.7303167420814479,
+  "auc_gap": 0.10929405515646795,
+  "dp_gap": 0.22233967582804792,
+  "eo_gap": 0.07203560259392763,
+  "wga_ci95": [
+    0.6014962945688226,
+    0.8308398740727961
+  ],
+  "n_test": 185
+}
