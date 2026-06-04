@@ -12,6 +12,7 @@ data/
 
 # Résultats et figures versionnés pour reproductibilité de soutenance.
 # (gardés volontairement malgré l'usage habituel)
+results/ptbxl_smoke/
 
 # editeur
 .vscode/

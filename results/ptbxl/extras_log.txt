@@ -1,0 +1,122 @@
+[load] 5 clients charges en 315.1s
+       small_sites           n=  906  pos_rate=0.27  sex_mean=0.54  age_mean=0.66
+       site_0                n= 8671  pos_rate=0.25  sex_mean=0.39  age_mean=0.36
+       site_1                n= 6242  pos_rate=0.27  sex_mean=0.54  age_mean=0.68
+       site_2                n= 5019  pos_rate=0.26  sex_mean=0.55  age_mean=0.68
+       site_3                n=  550  pos_rate=0.29  sex_mean=0.44  age_mean=0.68
+
+=== (a) bornes centralized + local_only ===
+  SKIP centralized/sex/seed0 (deja fait)
+  SKIP centralized/sex/seed1 (deja fait)
+  SKIP centralized/sex/seed2 (deja fait)
+  SKIP centralized/sex/seed3 (deja fait)
+  SKIP centralized/sex/seed4 (deja fait)
+  SKIP centralized/sex/seed5 (deja fait)
+  SKIP centralized/age/seed0 (deja fait)
+  SKIP centralized/age/seed1 (deja fait)
+  SKIP centralized/age/seed2 (deja fait)
+  SKIP centralized/age/seed3 (deja fait)
+  RUN  centralized/age/seed4 (ecoule 0.0 min)
+[run] dataset=ptbxl method=centralized seed=4 sensitive=age device=cuda
+[run] entrainement: 58.5s
+[run] AUC=0.899  WGA=0.882  gap=0.024  DP=0.188  EO=0.081  IC95=[0.875,0.891]
+[run] resultats -> results\ptbxl\ptbxl_centralized_age_seed4.json
+  RUN  centralized/age/seed5 (ecoule 1.1 min)
+[run] dataset=ptbxl method=centralized seed=5 sensitive=age device=cuda
+[run] entrainement: 57.6s
+[run] AUC=0.903  WGA=0.886  gap=0.026  DP=0.188  EO=0.063  IC95=[0.877,0.893]
+[run] resultats -> results\ptbxl\ptbxl_centralized_age_seed5.json
+  RUN  local_only/sex/seed0 (ecoule 2.2 min)
+[run] dataset=ptbxl method=local_only seed=0 sensitive=sex device=cuda
+[run] entrainement: 60.1s
+[run] AUC=0.896  WGA=0.895  gap=0.000  DP=0.070  EO=0.034  IC95=[0.885,0.899]
+[run] resultats -> results\ptbxl\ptbxl_local_only_sex_seed0.json
+  RUN  local_only/sex/seed1 (ecoule 3.4 min)
+[run] dataset=ptbxl method=local_only seed=1 sensitive=sex device=cuda
+[run] entrainement: 59.6s
+[run] AUC=0.889  WGA=0.887  gap=0.003  DP=0.059  EO=0.022  IC95=[0.877,0.892]
+[run] resultats -> results\ptbxl\ptbxl_local_only_sex_seed1.json
+  RUN  local_only/sex/seed2 (ecoule 4.5 min)
+[run] dataset=ptbxl method=local_only seed=2 sensitive=sex device=cuda
+[run] entrainement: 64.8s
+[run] AUC=0.889  WGA=0.887  gap=0.003  DP=0.052  EO=0.023  IC95=[0.878,0.893]
+[run] resultats -> results\ptbxl\ptbxl_local_only_sex_seed2.json
+  RUN  local_only/sex/seed3 (ecoule 5.8 min)
+[run] dataset=ptbxl method=local_only seed=3 sensitive=sex device=cuda
+[run] entrainement: 64.4s
+[run] AUC=0.894  WGA=0.892  gap=0.000  DP=0.075  EO=0.043  IC95=[0.882,0.896]
+[run] resultats -> results\ptbxl\ptbxl_local_only_sex_seed3.json
+  RUN  local_only/sex/seed4 (ecoule 7.0 min)
+[run] dataset=ptbxl method=local_only seed=4 sensitive=sex device=cuda
+[run] entrainement: 61.4s
+[run] AUC=0.885  WGA=0.882  gap=0.003  DP=0.076  EO=0.049  IC95=[0.873,0.888]
+[run] resultats -> results\ptbxl\ptbxl_local_only_sex_seed4.json
+  RUN  local_only/sex/seed5 (ecoule 8.2 min)
+[run] dataset=ptbxl method=local_only seed=5 sensitive=sex device=cuda
+[run] entrainement: 69.9s
+[run] AUC=0.893  WGA=0.889  gap=0.006  DP=0.047  EO=0.018  IC95=[0.879,0.896]
+[run] resultats -> results\ptbxl\ptbxl_local_only_sex_seed5.json
+  RUN  local_only/age/seed0 (ecoule 9.7 min)
+[run] dataset=ptbxl method=local_only seed=0 sensitive=age device=cuda
+[run] entrainement: 117.1s
+[run] AUC=0.900  WGA=0.882  gap=0.027  DP=0.189  EO=0.080  IC95=[0.875,0.889]
+[run] resultats -> results\ptbxl\ptbxl_local_only_age_seed0.json
+  RUN  local_only/age/seed1 (ecoule 11.8 min)
+[run] dataset=ptbxl method=local_only seed=1 sensitive=age device=cuda
+[run] entrainement: 62.7s
+[run] AUC=0.889  WGA=0.870  gap=0.021  DP=0.175  EO=0.074  IC95=[0.862,0.878]
+[run] resultats -> results\ptbxl\ptbxl_local_only_age_seed1.json
+  RUN  local_only/age/seed2 (ecoule 13.0 min)
+[run] dataset=ptbxl method=local_only seed=2 sensitive=age device=cuda
+[run] entrainement: 61.8s
+[run] AUC=0.891  WGA=0.874  gap=0.023  DP=0.192  EO=0.087  IC95=[0.865,0.882]
+[run] resultats -> results\ptbxl\ptbxl_local_only_age_seed2.json
+  RUN  local_only/age/seed3 (ecoule 14.2 min)
+[run] dataset=ptbxl method=local_only seed=3 sensitive=age device=cuda
+[run] entrainement: 78.0s
+[run] AUC=0.895  WGA=0.873  gap=0.035  DP=0.169  EO=0.069  IC95=[0.864,0.881]
+[run] resultats -> results\ptbxl\ptbxl_local_only_age_seed3.json
+  RUN  local_only/age/seed4 (ecoule 15.8 min)
+[run] dataset=ptbxl method=local_only seed=4 sensitive=age device=cuda
+[run] entrainement: 101.3s
+[run] AUC=0.884  WGA=0.868  gap=0.023  DP=0.175  EO=0.081  IC95=[0.859,0.875]
+[run] resultats -> results\ptbxl\ptbxl_local_only_age_seed4.json
+  RUN  local_only/age/seed5 (ecoule 17.8 min)
+[run] dataset=ptbxl method=local_only seed=5 sensitive=age device=cuda
+[run] entrainement: 103.0s
+[run] AUC=0.882  WGA=0.863  gap=0.031  DP=0.159  EO=0.051  IC95=[0.854,0.871]
+[run] resultats -> results\ptbxl\ptbxl_local_only_age_seed5.json
+=== bornes terminees en 19.8 min ===
+
+=== (b) trace de convergence (seed 0) ===
+  [fedavg] round 5: AUC=0.9176
+  [fedavg] round 10: AUC=0.9260
+  [fedavg] round 15: AUC=0.9294
+  [fedavg] round 20: AUC=0.9305
+  [fedavg] round 25: AUC=0.9312
+  [fedavg] round 30: AUC=0.9299
+  [fedavg] round 35: AUC=0.9307
+  [fedavg] round 40: AUC=0.9291
+  [fedavg] round 45: AUC=0.9265
+  [fedavg] round 50: AUC=0.9252
+  [fedbn] round 5: AUC=0.8979
+  [fedbn] round 10: AUC=0.9127
+  [fedbn] round 15: AUC=0.9176
+  [fedbn] round 20: AUC=0.9109
+  [fedbn] round 25: AUC=0.9221
+  [fedbn] round 30: AUC=0.9158
+  [fedbn] round 35: AUC=0.9037
+  [fedbn] round 40: AUC=0.9187
+  [fedbn] round 45: AUC=0.9199
+  [fedbn] round 50: AUC=0.9092
+  [fedsubgroup] round 5: AUC=0.9152
+  [fedsubgroup] round 10: AUC=0.9246
+  [fedsubgroup] round 15: AUC=0.9288
+  [fedsubgroup] round 20: AUC=0.9295
+  [fedsubgroup] round 25: AUC=0.9310
+  [fedsubgroup] round 30: AUC=0.9315
+  [fedsubgroup] round 35: AUC=0.9319
+  [fedsubgroup] round 40: AUC=0.9294
+  [fedsubgroup] round 45: AUC=0.9277
+  [fedsubgroup] round 50: AUC=0.9257
+=== convergence -> results\ptbxl\convergence_ptbxl.csv ===

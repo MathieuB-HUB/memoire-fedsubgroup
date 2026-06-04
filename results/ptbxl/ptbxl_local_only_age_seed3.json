@@ -1,0 +1,22 @@
+{
+  "config_file": "configs/ptbxl.yaml",
+  "dataset": "ptbxl",
+  "method": "local_only",
+  "seed": 3,
+  "sensitive": "age",
+  "duration_s": 77.95914649963379,
+  "auc_global": 0.895282886322953,
+  "auc_per_group": {
+    "0": 0.908508085229901,
+    "1": 0.8731001943989514
+  },
+  "worst_group_auc": 0.8731001943989514,
+  "auc_gap": 0.03540789083094964,
+  "dp_gap": 0.1687026214963229,
+  "eo_gap": 0.06942219648581918,
+  "wga_ci95": [
+    0.8644862861432486,
+    0.8805395532253594
+  ],
+  "n_test": 4277
+}

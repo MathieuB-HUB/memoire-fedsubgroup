@@ -1,0 +1,9 @@
+dataset: ptbxl
+data_path: data/ptbxl
+sampling_rate: 100
+window_seconds: 10
+model: resnet1d
+batch_size: 64
+local_epochs: 1
+n_rounds: 2
+lr: 0.001

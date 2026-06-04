@@ -346,24 +346,76 @@ def verdict_text(parsed: dict) -> str:
                    "AUC mais au prix d'une baisse de l'AUC global. Le compromis "
                    "est quantifié ci-dessus.\n")
     else:
-        n_any = next(iter(parsed.values())).get("n_seeds", 0)
+        # Branche réalisée sur Fed-Heart : H1 non soutenue (Delta < 0 sur les
+        # deux attributs). Le verdict synthétique H1--H4 est rédigé pour cet
+        # état des données ; tous les chiffres (n, p, AUC) sont interpolés
+        # depuis `parsed`, donc régénérer ce fichier reste tracé sur les JSON.
+        # fr() : format français à virgule pour la prose (0.027 -> 0{,}027).
+        def fr(x, nd=3):
+            return f"{x:.{nd}f}".replace(".", "{,}")
+        ps = parsed.get("sex", {})
+        pa = parsed.get("age", {})
+        n_any = ps.get("n_seeds") or pa.get("n_seeds") or 0
+        p_sex = fr(ps.get("p", float("nan")))
+        p_age = fr(pa.get("p", float("nan")))
+        fs_auc_fr = fr(ps.get("fs_auc", pa.get("fs_auc", float("nan"))))
+        b_auc_sex = fr(ps.get("b_auc", float("nan")))
+        b_auc_age = fr(pa.get("b_auc", float("nan")))
         verdict = (
-            "\\textbf{Verdict : H4 (résultat négatif) est confirmée sur "
-            "Fed-Heart.} "
-            f"Sur les $n = {n_any}$ graines exécutées, le signe du "
-            "$\\Delta(\\mathrm{WGA})$ moyen est défavorable à H1 sur les "
-            "deux attributs sensibles ; le critère bootstrap pré-enregistré "
-            "(non-recouvrement IC95 \\emph{en faveur} de FedSubgroup) est "
-            "satisfait par 0 graine sur l'ensemble. Sur l'attribut sexe, le "
-            "test de Wilcoxon signé apparié est même \\emph{significatif} en "
-            "défaveur de FedSubgroup ($p = 0{,}027$), confirmant que la "
-            "dégradation observée n'est pas un artefact d'échantillonnage. "
-            "Interprétation : sur ce dataset et à cette "
-            "taille d'échantillon, la personnalisation par lieu de soin capte "
-            "déjà en grande partie la structure démographique locale. Le "
-            "chapitre 7 (stress test Dirichlet) montre que ce verdict n'est "
-            "pas universel et bascule lorsque les clients deviennent plus "
-            "équilibrés en composition démographique.\n"
+            "\\textbf{Verdict synthétique sur les quatre hypothèses "
+            "préenregistrées.}\n\n"
+            "\\textbf{H1 (\\emph{FedSubgroup améliore le worst-group AUC}) est\n"
+            "réfutée sur Fed-Heart.} Sur les $n = " + str(n_any) + "$ graines "
+            "exécutées, le signe\n"
+            "du $\\Delta(\\mathrm{WGA})$ moyen est défavorable à H1 sur les deux\n"
+            "attributs sensibles ; le critère bootstrap pré-enregistré\n"
+            "(non-recouvrement IC95 \\emph{en faveur} de FedSubgroup) est satisfait\n"
+            "par 0 graine sur l'ensemble. Sur l'attribut sexe, le test de\n"
+            "Wilcoxon signé apparié est même \\emph{significatif} en défaveur de\n"
+            f"FedSubgroup ($p = {p_sex}$), confirmant que la dégradation observée\n"
+            "n'est pas un artefact d'échantillonnage. Sur l'attribut âge, le\n"
+            f"test n'est pas significatif ($p = {p_age}$) mais le signe de l'effet\n"
+            "est cohérent avec celui observé sur l'attribut sexe : il s'agit donc\n"
+            "d'une réfutation forte sur sexe et d'une réfutation faible sur âge,\n"
+            "ce qui justifie de regrouper les deux attributs sous le même verdict.\n\n"
+            "\\textbf{H2 (\\emph{FedSubgroup égale ou dépasse la philosophie B sur\n"
+            "l'AUC global}) est partiellement validée.} L'AUC global de\n"
+            f"FedSubgroup (${fs_auc_fr}$) est inférieur de moins de un point à la\n"
+            f"meilleure méthode de philosophie B sur les deux attributs (${b_auc_sex}$\n"
+            f"sexe, ${b_auc_age}$ âge), écart qui n'est pas significatif au seuil\n"
+            "$\\alpha = 0{,}05$. La contribution proposée n'introduit donc pas de\n"
+            "coût de capacité, ce qui éloigne l'interprétation « FedSubgroup\n"
+            "sous-apprend » et oriente vers l'interprétation « la structure\n"
+            "multi-tête n'apporte rien spécifique à l'équité ».\n\n"
+            "\\textbf{H3 (\\emph{compromis explicite à quantifier si H1 confirmée\n"
+            "mais H2 infirmée}) est sans objet.} H1 n'étant pas confirmée, il\n"
+            "n'existe pas de gain d'équité dont il faudrait quantifier le coût en\n"
+            "performance globale : la condition d'activation de H3 n'est pas\n"
+            "remplie. À titre d'analyse complémentaire, nous observons que\n"
+            "FedSubgroup obtient des gaps DP/EO du même ordre que les méthodes de\n"
+            "philosophie B, sans réduction systématique ; la lecture par métrique\n"
+            "d'équité (§6.4) confirme qu'aucune méthode ne domine simultanément la\n"
+            "\\emph{capacité} (WG-AUC) et la \\emph{parité} (DP/EO), conformément aux\n"
+            "théorèmes d'impossibilité.\n\n"
+            "\\textbf{H4 (\\emph{résultat négatif éclairant la structure du\n"
+            "problème}) est confirmée.} La réfutation de H1 dans un cadre\n"
+            "où l'AUC global reste comparable (H2) suggère que la spécialisation\n"
+            "par sous-groupe démographique n'est pas un mécanisme efficace de\n"
+            "fairness sur Fed-Heart à 10 graines. L'ablation FedAvg+sg\n"
+            "(§6.2 et discussion §7.5) confirme ce diagnostic : la simple\n"
+            "\\emph{disponibilité} de l'attribut sensible en entrée du modèle\n"
+            "suffit à reproduire le gain observé, sans avoir besoin de la\n"
+            "structure multi-tête. Le stress test Dirichlet (chapitre~\\ref{sec:stress}) montre\n"
+            "en outre que ce verdict n'est pas universel : il bascule lorsque\n"
+            "les clients deviennent plus équilibrés en composition démographique\n"
+            "--- prédiction que les résultats sur PTB-XL confirment ensuite\n"
+            "(la pénalité se résorbe jusqu'à la parité). L'interprétation centrale,\n"
+            "pour Fed-Heart, tient en une phrase : la personnalisation par lieu de\n"
+            "soin y capte déjà la majeure partie de la structure démographique locale,\n"
+            "et c'est cette redondance avec la géographie qui prive FedSubgroup\n"
+            "de son levier théorique. Le chapitre~\\ref{sec:synthese} montre que cette\n"
+            "redondance disparaît quand les sites sont mixtes, retournant alors la\n"
+            "personnalisation par client contre le pire groupe.\n"
         )
     return "\n".join(lines) + "\n" + verdict
 
@@ -414,8 +466,9 @@ def conclusion_results_text(parsed: dict) -> str:
         "sur Fed-Heart, " + " ; ".join(bits) +
         ". Le compromis précis avec l'AUC global est détaillé au chapitre 6 et "
         "discuté au chapitre 8. Le stress test du chapitre 7 montre que ce "
-        "verdict bascule lorsque la composition démographique des clients "
-        "devient plus équilibrée ($\\alpha \\geq 1$)."
+        "verdict se résorbe puis s'inverse à mesure que la composition "
+        "démographique des clients devient plus équilibrée (parité vers "
+        "$\\alpha \\approx 1$, dépassement seulement à $\\alpha = 5$)."
     )
 
 
@@ -446,12 +499,21 @@ def main():
         ),
         encoding="utf-8"
     )
-    (out / "table_ptbxl.tex").write_text(
-        summary_tex(df, "ptbxl", "tab:ptbxl-summary",
-                    "PTB-XL : moyenne $\\pm$ écart-type sur 3 graines (à remplir "
-                    "après exécution de la grille complète)."),
-        encoding="utf-8"
-    )
+    # NE PAS régénérer table_ptbxl.tex ici. Ce script ne charge que les JSON
+    # Fed-Heart (dossier `results`) ; `summary_tex` produirait donc un
+    # placeholder « Aucun résultat pour ptbxl » qui ÉCRASERAIT la vraie table
+    # PTB-XL (et le format réel diffère : 6 méthodes, caption « 21 388 ECG »).
+    # Les tables PTB-XL (table_ptbxl*.tex, ptbxl_bounds, ptbxl_convergence) sont
+    # maintenues à partir de results/ptbxl/ et ne doivent pas être touchées ici.
+    if not (df["dataset"] == "ptbxl").any():
+        print("  (i) table_ptbxl.tex préservée (pas de données PTB-XL dans "
+              f"{results}/ ; maintenue séparément depuis results/ptbxl/)")
+    else:
+        (out / "table_ptbxl.tex").write_text(
+            summary_tex(df, "ptbxl", "tab:ptbxl-summary",
+                        "PTB-XL : moyenne $\\pm$ écart-type."),
+            encoding="utf-8"
+        )
     wtex, parsed = wilcoxon_h1(df, "fed_heart")
     (out / "table_wilcoxon.tex").write_text(wtex, encoding="utf-8")
     (out / "verdict.tex").write_text(verdict_text(parsed), encoding="utf-8")

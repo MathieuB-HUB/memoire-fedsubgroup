@@ -2,6 +2,11 @@
 
 Usage:
     python experiments/run.py --config configs/fed_heart.yaml --method fedavg --seed 0 --sensitive sex
+
+Le chargement du dataset (load_dataset) et l'execution d'un run (run_one) sont
+exposes separement pour que les grilles (grid_*.py) chargent les donnees une
+seule fois et bouclent en interne -- crucial pour PTB-XL ou la lecture des 21k
+signaux coute ~6 min.
 """
 from __future__ import annotations
 
@@ -32,22 +37,8 @@ def build_factory(cfg, in_dim_or_ch, n_classes, device):
     return factory
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True)
-    parser.add_argument("--method", required=True, choices=list(METHODS.keys()))
-    parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--sensitive", default="sex", choices=["sex", "age"])
-    parser.add_argument("--out", default="results")
-    args = parser.parse_args()
-
-    cfg = load_config(args.config)
-    set_seed(args.seed)
-    device = get_device()
-    print(f"[run] config={args.config} method={args.method} seed={args.seed} "
-          f"sensitive={args.sensitive} device={device}")
-
-    # --- Chargement dataset ---
+def load_dataset(cfg):
+    """Charge le dataset une fois. Renvoie (clients, in_dim, n_classes)."""
     t0 = time.time()
     if cfg["dataset"] == "fed_heart":
         clients = load_fed_heart("data/fed_heart")
@@ -58,22 +49,30 @@ def main():
         in_dim, n_classes = 12, clients[0].y.shape[1]
     else:
         raise ValueError(cfg["dataset"])
-    print(f"[run] {len(clients)} clients charges en {time.time() - t0:.1f}s")
+    print(f"[load] {len(clients)} clients charges en {time.time() - t0:.1f}s")
     for c in clients:
         print(f"       {c.name:20s}  n={len(c):5d}  pos_rate={c.y.mean():.2f}  "
               f"sex_mean={c.sex.mean():.2f}  age_mean={c.age_bin.mean():.2f}")
+    return clients, in_dim, n_classes
 
-    splits = make_splits(clients, test_frac=0.2, seed=args.seed,
-                         device=str(device))
 
-    # --- Construction du model factory ---
+def run_one(cfg, clients, in_dim, n_classes, method, seed, sensitive,
+            out="results", device=None):
+    """Execute un run FL et sauvegarde le JSON. Renvoie le payload."""
+    if device is None:
+        device = get_device()
+    set_seed(seed)
+    print(f"[run] dataset={cfg['dataset']} method={method} seed={seed} "
+          f"sensitive={sensitive} device={device}")
+
+    splits = make_splits(clients, test_frac=0.2, seed=seed, device=str(device))
+
     in_arg = in_dim if cfg["model"] == "mlp" else 12
-    if args.method == "fedavg_sg":
+    if method == "fedavg_sg":
         in_arg = in_arg + 4
     factory = build_factory(cfg, in_arg, n_classes, device)
 
-    # --- Boucle FL ---
-    runner = METHODS[args.method]
+    runner = METHODS[method]
     t0 = time.time()
     y_true, y_score, sex, age = runner(
         splits, factory,
@@ -83,34 +82,31 @@ def main():
     dur = time.time() - t0
     print(f"[run] entrainement: {dur:.1f}s")
 
-    sensitive = sex if args.sensitive == "sex" else age
-    summary = fairness_summary(y_true, y_score, sensitive)
+    sens_arr = sex if sensitive == "sex" else age
+    summary = fairness_summary(y_true, y_score, sens_arr)
 
     # IC bootstrap sur worst-group AUC : on bootstrap au niveau sample.
     def wga(y_true, y_score, sensitive):
         s = fairness_summary(y_true, y_score, sensitive)
         return s["worst_group_auc"]
     wga_lo, wga_hi = bootstrap_metric(
-        wga, seed=args.seed, n_boot=500,
-        y_true=y_true, y_score=y_score, sensitive=sensitive,
+        wga, seed=seed, n_boot=500,
+        y_true=y_true, y_score=y_score, sensitive=sens_arr,
     )
 
     print(f"[run] AUC={summary['auc_global']:.3f}  WGA={summary['worst_group_auc']:.3f}  "
           f"gap={summary['auc_gap']:.3f}  DP={summary['dp_gap']:.3f}  EO={summary['eo_gap']:.3f}  "
           f"IC95=[{wga_lo:.3f},{wga_hi:.3f}]")
 
-    # --- Sauvegarde resultats ---
-    out_dir = Path(args.out)
+    out_dir = Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / (
-        f"{cfg['dataset']}_{args.method}_{args.sensitive}_seed{args.seed}.json"
-    )
+    out_path = out_dir / f"{cfg['dataset']}_{method}_{sensitive}_seed{seed}.json"
     payload = {
-        "config_file": args.config,
+        "config_file": cfg.get("_config_file", ""),
         "dataset": cfg["dataset"],
-        "method": args.method,
-        "seed": args.seed,
-        "sensitive": args.sensitive,
+        "method": method,
+        "seed": seed,
+        "sensitive": sensitive,
         "duration_s": dur,
         **summary,
         "wga_ci95": [wga_lo, wga_hi],
@@ -118,6 +114,30 @@ def main():
     }
     out_path.write_text(json.dumps(payload, indent=2))
     print(f"[run] resultats -> {out_path}")
+
+    # Libere la VRAM entre runs (utile quand run_one est appele en boucle).
+    del splits
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+    return payload
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", required=True)
+    parser.add_argument("--method", required=True, choices=list(METHODS.keys()))
+    parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--sensitive", default="sex", choices=["sex", "age"])
+    parser.add_argument("--out", default="results")
+    args = parser.parse_args()
+
+    cfg = load_config(args.config)
+    cfg["_config_file"] = args.config
+    device = get_device()
+
+    clients, in_dim, n_classes = load_dataset(cfg)
+    run_one(cfg, clients, in_dim, n_classes, args.method, args.seed,
+            args.sensitive, out=args.out, device=device)
 
 
 if __name__ == "__main__":

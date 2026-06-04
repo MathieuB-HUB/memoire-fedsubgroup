@@ -1,0 +1,11 @@
+metric,sensitive,method,vs,mean_diff,wilcoxon_p,n_pairs
+worst_group_auc,age,ditto,fedavg,-0.01040541981360843,0.03125,6
+worst_group_auc,age,fedbn,fedavg,-0.01641620720228489,0.03125,6
+worst_group_auc,age,fedper,fedavg,0.0004968700606325926,0.4375,6
+worst_group_auc,age,fedrep,fedavg,-0.003408061369092219,0.03125,6
+worst_group_auc,age,fedsubgroup,fedavg,0.0009560774091487515,1.0,6
+worst_group_auc,sex,ditto,fedavg,-0.009864794196209023,0.03125,6
+worst_group_auc,sex,fedbn,fedavg,-0.013516355520740228,0.03125,6
+worst_group_auc,sex,fedper,fedavg,9.836511770052365e-05,1.0,6
+worst_group_auc,sex,fedrep,fedavg,-0.0023050036090894546,0.15625,6
+worst_group_auc,sex,fedsubgroup,fedavg,0.0018899910484543685,0.09375,6

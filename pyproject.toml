@@ -24,3 +24,13 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+# Torch build CUDA (cu126) pour exploiter la RTX 4070 Ti Super.
+# Index explicite : seul torch passe par le canal PyTorch, le reste reste sur PyPI.
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu126" }
